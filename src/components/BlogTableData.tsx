@@ -12,15 +12,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect, useCallback } from "react";
-import { cms } from "@/config/apiConfig";
+import { api, cms } from "@/config/apiConfig";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import debounce from "lodash/debounce";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
-export default function FooterTableData() {
-  const [data, setData] = useState<any>();
-  const [dataItems, setDataItems] = useState<any[]>([]);
+export default function MenuTableData() {
+  const [data, setData] = useState<BlogResult>();
+  const [dataItems, setDataItems] = useState<BlogItem[]>([]);
   const [keyword, setKeyword] = useState<string>("");
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,8 +34,8 @@ export default function FooterTableData() {
   const fetchData = async (keyword: string, pageNumber: number) => {
     try {
       setLoading(true);
-      const response = await cms.get(
-        `/admin/footer?Keyword=${keyword}&PageSize=${itemsPerPage}&Page=${pageNumber}`
+      const response = await api.get(
+        `/blog?Keyword=${keyword}&PageSize=${itemsPerPage}&Page=${pageNumber}`
       );
       setData(response.data.result);
       setDataItems(response.data.result.items);
@@ -75,7 +76,7 @@ export default function FooterTableData() {
 
   if (loading) {
     return (
-        <div className="flex flex-col items-start gap-4">
+      <div className="flex flex-col items-start gap-4">
         <Skeleton className="max-w-sm h-10 bg-slate-200" />
         <Skeleton className="max-w-sm h-10 bg-slate-200" />
         {[...Array(10)].map((_, index) => (
@@ -109,31 +110,33 @@ export default function FooterTableData() {
       },
     },
     {
-      accessorKey: "code",
+      accessorKey: "title",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Code <ArrowUpDown className="ml-2 h-4 w-4" />
+          Title <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-start px-4">{row.getValue("code")}</div>
+        <div className="text-start px-4">{row.getValue("title")}</div>
       ),
     },
     {
-      accessorKey: "name",
+      accessorKey: "description",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name <ArrowUpDown className="ml-2 h-4 w-4" />
+          Description <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-start px-4">{row.getValue("name")}</div>
+        <div className="text-start px-4">
+          {row.getValue("description") ? row.getValue("description") : "null"}
+        </div>
       ),
     },
     {
@@ -152,44 +155,22 @@ export default function FooterTableData() {
         </div>
       ),
     },
-    {
-      accessorKey: "footers",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Footer children <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-      cell: ({ row }) => {
-        const footersChildren = row.getValue("footers") as {
-          status: string;
-          name: string;
-        }[];
-        return (
-          <div className="text-start px-4">
-            {footersChildren.length > 0 ? (
-              <ul className="flex flex-col gap-1">
-                {footersChildren.map((footer, index) => (
-                  <li
-                    key={index}
-                    className={`p-2 rounded-lg ${
-                      footer.status === "Active" ? "bg-lamaSky" : "bg-red-200"
-                    }`}
-                  >
-                    {footer.name}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <span>No menu childen</span>
-            )}
-          </div>
-        );
-      },
-    },
-
+    // {
+    //   accessorKey: "content",
+    //   header: ({ column }) => (
+    //     <Button
+    //       variant="ghost"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //     >
+    //       Content <ArrowUpDown className="ml-2 h-4 w-4" />
+    //     </Button>
+    //   ),
+    //   cell: ({ row }) => (
+    //     <div className="text-start px-4">
+    //       {row.getValue("content") ? row.getValue("content") : "null"}
+    //     </div>
+    //   ),
+    // },
     {
       accessorKey: "status",
       header: ({ column }) => (
@@ -214,6 +195,7 @@ export default function FooterTableData() {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
+        const idBlog = row.original.id;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -225,13 +207,15 @@ export default function FooterTableData() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem className="hover:bg-lamaSkyLight cursor-pointer">
-                View Information
+                <Link href={`/content/blogs/detail/${idBlog}`}>
+                  View Information
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="hover:bg-lamaYellow cursor-pointer">
-                Edit Data
+                <Link href={`/content/blogs/edit/${idBlog}`}>Edit Blog</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="hover:bg-red-200 cursor-pointer">
-                Delete Data
+                Delete Blog
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -243,23 +227,32 @@ export default function FooterTableData() {
   const startItem = (pageNumber - 1) * itemsPerPage + 1;
   const endItem = Math.min(
     pageNumber * itemsPerPage,
-    data.pagingInfo.totalItems
+    data?.pagingInfo.totalItems || 0
   );
 
   return (
     <>
-      <Input
-        type="text"
-        placeholder="Search all data..."
-        value={keyword}
-        onChange={handleSearch}
-        className="p-2 border rounded max-w-sm"
-      />
+      <div className="flex items-center justify-between">
+        <Input
+          type="text"
+          placeholder="Search all data..."
+          value={keyword}
+          onChange={handleSearch}
+          className="p-2 border rounded max-w-sm"
+        />
+
+        <button className="px-3 py-2 bg-green-300 hover:bg-green-500 text-gray-600 text-[16px] font-medium rounded-lg transition-all duration-300">
+          <Link href={`/content/blogs/post`}>Create blog</Link>
+        </button>
+      </div>
+
       <TableData columns={columns} data={dataItems} />
+
       <div className="flex justify-between mt-4">
         <div className="pl-4">
-          {startItem} - {endItem} of {data.pagingInfo.totalItems}
+          {startItem} - {endItem} of {data?.pagingInfo.totalItems || 0}
         </div>
+
         <div className="flex justify-end gap-4">
           <Button
             onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}

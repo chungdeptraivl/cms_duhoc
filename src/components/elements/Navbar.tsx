@@ -44,7 +44,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className=" sticky top-0">
+    <div className=" sticky top-0 z-[9]">
       <div className="flex items-center justify-end gap-10 p-2 bg-lamaSkyLight relative">
         <div className="hidden md:flex items-center gap-2 text-xs rounded-full ring-[1.5px] ring-gray-300 px-2">
           <Image src="/search.png" alt="" width={14} height={14} />

@@ -51,9 +51,9 @@ const menuItems = [
     items: [
       {
         icon: "/class.png",
-        label: "Classes",
-        href: "/list/classes",
-        visible: ["admin", "teacher"],
+        label: "Blogs",
+        href: "/content/blogs",
+        visible: ["admin"],
       },
       {
         icon: "/lesson.png",
