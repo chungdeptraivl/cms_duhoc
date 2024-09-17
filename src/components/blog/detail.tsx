@@ -17,8 +17,6 @@ const BlogDetail = ({ dataBlog }: BlogDetailProps) => {
           {dataBlog.description}
         </p>
 
-        {/* {imgUrl && <img alt="thumb" src={imgUrl} className="w-full" />} */}
-
         <div
           className="text-md text-[#102E50] leading-6"
           dangerouslySetInnerHTML={{ __html: dataBlog.content }}

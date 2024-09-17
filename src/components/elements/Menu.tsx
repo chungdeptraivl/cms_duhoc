@@ -145,9 +145,9 @@ const Menu = () => {
               <Link
                 href={item.href}
                 key={item.label}
-                className={`flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:font-[600] hover:bg-lamaSkyLight ${
+                className={`flex items-center justify-center lg:justify-start gap-4 transition-all duration-300 hover:-translate-x-2 text-gray-500 py-2 md:px-2 rounded-md hover:font-[600] hover:bg-lamaSkyLight ${
                   pathname.includes(item.href)
-                    ? "font-[600] bg-lamaSkyLight"
+                    ? "font-[600] bg-lamaSkyLight text-gray-600 -translate-x-2"
                     : ""
                 }`}
               >

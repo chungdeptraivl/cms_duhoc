@@ -5,16 +5,18 @@ import storage from "redux-persist/lib/storage";
 import sessionStorage from "redux-persist/lib/storage/session";
 
 import adminReducer from "./slices/adminSlice";
+import blogContentReducer from "./slices/blogContentSlice"
 
 const sessionPersistConfig = {
   key: "root",
   storage: sessionStorage,
-  whitelist: ["admin"],
+  whitelist: ["admin", "blogContent"],
   blacklish: [],
 };
 
 const rootReducer = combineReducers({
   admin: adminReducer,
+  blogContent: blogContentReducer
 });
 
 const persistedReducer = persistReducer(sessionPersistConfig, rootReducer);

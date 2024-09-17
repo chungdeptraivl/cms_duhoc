@@ -4,12 +4,14 @@ import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "../../../store";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const Navbar = () => {
   const dataAdmin = useAppSelector((state) => state.admin.result);
 
   const router = useRouter();
+  const param = usePathname();
+  console.log("kkk", param);
 
   const [isShowProfileCard, setIsShowProfileCard] = useState<boolean>(false);
 
@@ -43,9 +45,26 @@ const Navbar = () => {
     router.push("/sign-in");
   };
 
+  const handleBackPage = () => {
+    window.history.back();
+  };
+
   return (
-    <div className=" sticky top-0 z-[9]">
-      <div className="flex items-center justify-end gap-10 p-2 bg-lamaSkyLight relative">
+    <div className="sticky top-0 z-[9] flex justify-between items-center bg-lamaSkyLight">
+      {param.includes("detail") ||
+      param.includes("edit") ||
+      param.includes("post") ||
+      param.includes("preview") ? (
+        <button
+          onClick={() => handleBackPage()}
+          className="px-3 ml-6 py-2 text-blue-600 hover:bg-blue-500 hover:text-white rounded-lg border border-blue-400 font-medium"
+        >
+          Come back
+        </button>
+      ) : (
+        <div />
+      )}
+      <div className="flex items-center justify-end gap-10 p-2 relative">
         <div className="hidden md:flex items-center gap-2 text-xs rounded-full ring-[1.5px] ring-gray-300 px-2">
           <Image src="/search.png" alt="" width={14} height={14} />
           <input
